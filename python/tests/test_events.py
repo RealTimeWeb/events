@@ -10,61 +10,67 @@ except ImportError:
     from python.src import events
 
 
-# Embed your own keys for simplicity
-CONSUMER_KEY = "your key goes here"
-CONSUMER_SECRET = "your key goes here"
-ACCESS_TOKEN = "your key goes here"
-ACCESS_TOKEN_SECRET = "your key goes here"
-# Remove these lines; we just do this for our own simplicity
-with open('../src/secrets.txt', 'r') as secrets:
-    CONSUMER_KEY, CONSUMER_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET = \
-        [l.strip() for l in secrets.readlines()]
-
-
 class TestEvents(unittest.TestCase):
     def test_method_online(self):
         events.connect()
         events._start_editing()
 
-        keys = ['change_number', 'change_percentage', 'exchange_name',
-                'last_trade_date_and_time', 'last_trade_price', 'ticker_name']
+        keys = ['actor1 name',
+                'actor1 latitude',
+                'actor1 longitude',
+                'actor2 name',
+                'actor2 latitude',
+                'actor2 longitude',
+                'average tone',
+                'event code',
+                'SQLDATE']
 
-        item = events.get_("AAPL")
-        self.assertTrue(isinstance(item, dict))
+        item = events.get_events_information("Actor1Geo_FullName==\"New York, "
+                                             "United States\"")
+        self.assertTrue(isinstance(item, list))
 
         # Assert all of the keys are in item
-        intersection = set(keys).intersection(item)
-        self.assertEqual(100, len(intersection))
+        intersection = set(keys).intersection(item[0])
+        self.assertEqual(9, len(intersection))
 
         events._save_cache("../src/events_cache.json")
 
     def test_method_offline(self):
-        events.disconnect("../events/events_cache.json")
+        events.disconnect("../src/events_cache.json")
 
-        keys = ['change_number', 'change_percentage', 'exchange_name',
-                'last_trade_date_and_time', 'last_trade_price', 'ticker_name']
+        keys = ['actor1 name',
+                'actor1 latitude',
+                'actor1 longitude',
+                'actor2 name',
+                'actor2 latitude',
+                'actor2 longitude',
+                'average tone',
+                'event code',
+                'SQLDATE']
 
-        item = events.get_("AAPL")
-        self.assertTrue(isinstance(item, dict))
+        item = events.get_events_information("Actor1Geo_FullName==\"New York, "
+                                             "United States\"")
+        self.assertTrue(isinstance(item, list))
 
-        # Assert all of the keys are in the stock
-        intersection = set(keys).intersection(item)
-        self.assertEqual(100, len(intersection))
+        # Assert all of the keys are in item
+        intersection = set(keys).intersection(item[0])
+        self.assertEqual(9, len(intersection))
 
     def test_throw_exception(self):
         events.connect()
 
         with self.assertRaises(events.EventsException) as context:
-            events.get_(["AAPL"])
+            events.get_events_information("Hello")
 
-        self.assertEqual('MSG', context.exception.args[0])
-
-        with self.assertRaises(events.EventsException) as context:
-            events.get_(1)
-
-        self.assertEqual('MSG', context.exception.args[0])
+        self.assertEqual('Make sure you entered a valid query',
+                         context.exception.args[0])
 
         with self.assertRaises(events.EventsException) as context:
-            events.get_("INVALID_STOCK")
+            events.get_events_information(1)
+        self.assertEqual('Please enter a valid query',
+                         context.exception.args[0])
 
-        self.assertEqual('MSG', context.exception.args[0])
+        with self.assertRaises(events.EventsException) as context:
+            events.get_events_information("Actor1Geo_FullName==Herndon")
+
+        self.assertEqual('There were no results', context.exception.args[0])

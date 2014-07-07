@@ -357,6 +357,8 @@ def _fetch_events_info(params):
         if _CONNECTED and _EDITABLE:
             _add_to_cache(query, result)
         json_res = json.loads(result)
+        if not json_res['_items']:
+            raise EventsException("There were no results")
     except ValueError:
         raise EventsException("Internal Error")
 
