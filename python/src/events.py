@@ -378,6 +378,7 @@ def get_events_information(query):
 
     eventss = []
 
+
     for json_dict in json_list:
         events = Events._from_json(json_res)
         eventss.append(events._to_dict())
