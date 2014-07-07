@@ -223,7 +223,7 @@ class EventsException(Exception):
 # Domain Objects
 
 
-class Events(object):
+class Event(object):
     """
     A Events contains
     """
@@ -291,7 +291,7 @@ class Events(object):
         """
 
         if json_data is None:
-            return Events()
+            return Event()
 
         try:
             json_items = json_data['_items']
@@ -306,7 +306,7 @@ class Events(object):
             event_code = json_dict['EventCode']
             sqldate = json_dict['SQLDATE']
 
-            events = Events(actor1_name=actor1_name, actor1_lat=actor1_lat,
+            events = Event(actor1_name=actor1_name, actor1_lat=actor1_lat,
                             actor1_long=actor1_long, actor2_name=actor2_name,
                             actor2_lat=actor2_lat, actor2_long=actor2_long,
                             avg_tone=avg_tone, event_code=event_code,
@@ -382,7 +382,7 @@ def get_events_information(query):
 
 
     for json_dict in json_list:
-        events = Events._from_json(json_res)
+        events = Event._from_json(json_res)
         eventss.append(events._to_dict())
 
     return eventss
